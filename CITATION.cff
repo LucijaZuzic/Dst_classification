@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Žužić"
+  given-names: "Lucija"
+  orcid: "https://orcid.org/0009-0007-6788-7522"
+- family-names: "Klen"
+  given-names: "Deni"
+  orcid: "https://orcid.org/0009-0008-7473-8653"
+- family-names: "Iliev"
+  given-names: "Teodor B."
+  orcid: "https://orcid.org/0000-0003-2214-8092"
+- family-names: "Filjar"
+  given-names: "Renato"
+  orcid: "https://orcid.org/0000-0002-7040-9931"
+title: "A $Dst$-based space weather conditions machine learning classification model for GNSS PNT performance analysis"
+version: 1.0.1
+doi: 10.5281/zenodo.1234
+date-released: 2024-12-11
+url: "https://github.com/LucijaZuzic/Dst_classification"
