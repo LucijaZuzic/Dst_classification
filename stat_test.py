@@ -1,0 +1,591 @@
+import pandas as pd
+from statsmodels.stats.contingency_tables import mcnemar
+import os
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib import rc
+from matplotlib import gridspec
+cm = 1/2.54  # centimeters in inches
+
+model_name_list = ["svmPoly", "C5.0", "nb", "nnet", "pls", "fda", "pcaNNet"]
+wd_list = ["all", "no_Dst", "no_TEC", "coord", "xyap", "xzap", "yzap"]
+translate_algo = {
+    "svmPoly": "Support Vector Machine method\nwith a Polynomial Kernel",
+    "C5.0": "C5.0 Decision Tree method",
+    "nb": "Naive Bayes method",
+    "nnet": "Neural Network method",
+    "pls": "Partial Least Squares method",
+    "fda": "Flexible Discriminant Analysis method", 
+    "pcaNNet": "Neural Network method\nwith Principal Component Analysis in preprocessing"
+}
+translate_data = {
+    "all": "all variables",
+    "no_Dst": "the full set of predictors ($TEC$, $dTEC$, $B_{x}$, $B_{y}$, $B_{z}$, and $a_{p}$)",
+    "no_TEC": "all predictors except $TEC$, and $dTEC$ ($B_{x}$, $B_{y}$, $B_{z}$, and $a_{p}$)",
+    "coord": "geomagnetic indices ($B_{x}$, $B_{y}$, and $B_{z}$) as predictors",
+    "xyap": "$B_{x}$, $B_{y}$, and $a_{p}$ as predictors",
+    "xzap": "$B_{x}$, $B_{z}$, and $a_{p}$ as predictors",
+    "yzap": "$B_{y}$, $B_{z}$, and $a_{p}$ as predictors"
+}
+redo = False
+if redo:
+    values_compare = dict()
+    for model_name in model_name_list:
+        for wd in wd_list:
+            values_compare[model_name + "_" + wd] = dict()
+            file_open = pd.read_csv(wd + "/" + model_name + ".csv")
+            actual = list(file_open["true_classes"])
+            preds = list(file_open["model_predictions"])
+            values_compare[model_name + "_" + wd][0] = preds
+            if "actual" not in values_compare:
+                values_compare["actual"] = dict()
+                values_compare["actual"][0] = actual
+            for class_one in range(1, 6):
+                values_compare[model_name + "_" + wd][class_one] = [p == class_one for p in preds]
+                values_compare["actual"][class_one] = [p == class_one for p in actual]
+    new_data_frame = {"model1": [], "model2": [], "class": [], "test_type": [], "correction": [], "pvalue": [], "statistic": []}
+    list_of_keys = list(values_compare.keys())
+    for model_ix1 in range(len(list_of_keys)):
+        for model_ix2 in range(model_ix1 + 1, len(list_of_keys)):
+            m1 = list_of_keys[model_ix1]
+            m2 = list_of_keys[model_ix2]
+            a1 = values_compare[m1][0]
+            a2 = values_compare[m2][0]
+            matr = []
+            corr_use = False
+            for class_one in range(1, 6):
+                matr.append([])
+                for class_two in range(1, 6):
+                    val_add = len([ix for ix in range(len(a1)) if int(a1[ix]) == class_one and int(a2[ix]) == class_two])
+                    matr[-1].append(val_add)
+                    if val_add <= 4:
+                        corr_use = True
+            mnc = mcnemar(matr, exact=False, correction=True)
+            new_data_frame["model1"].append(m1)
+            new_data_frame["model2"].append(m2)
+            new_data_frame["class"].append(0)
+            new_data_frame["test_type"].append("correction")
+            new_data_frame["correction"].append(corr_use)
+            new_data_frame["pvalue"].append(mnc.pvalue)
+            new_data_frame["statistic"].append(mnc.statistic)
+            mn = mcnemar(matr, exact=False, correction=False)
+            new_data_frame["model1"].append(m1)
+            new_data_frame["model2"].append(m2)
+            new_data_frame["class"].append(0)
+            new_data_frame["test_type"].append("no")
+            new_data_frame["correction"].append(corr_use)
+            new_data_frame["pvalue"].append(mn.pvalue)
+            new_data_frame["statistic"].append(mn.statistic)
+            mnbc = mcnemar(matr, exact=True, correction=True)
+            new_data_frame["model1"].append(m1)
+            new_data_frame["model2"].append(m2)
+            new_data_frame["class"].append(0)
+            new_data_frame["test_type"].append("exactcorrection")
+            new_data_frame["correction"].append(corr_use)
+            new_data_frame["pvalue"].append(mnbc.pvalue)
+            new_data_frame["statistic"].append(mnbc.statistic)
+            mnb = mcnemar(matr, exact=True, correction=False)
+            new_data_frame["model1"].append(m1)
+            new_data_frame["model2"].append(m2)
+            new_data_frame["class"].append(0)
+            new_data_frame["test_type"].append("exact")
+            new_data_frame["correction"].append(corr_use)
+            new_data_frame["pvalue"].append(mnb.pvalue)
+            new_data_frame["statistic"].append(mnb.statistic)
+            for class_one in range(1, 6):
+                a1 = values_compare[m1][class_one]
+                a2 = values_compare[m2][class_one]
+                pp = [ix for ix in range(len(a1)) if a1[ix] == 1 and a2[ix] == 1]
+                nn = [ix for ix in range(len(a1)) if a1[ix] == 0 and a2[ix] == 0]
+                pn = [ix for ix in range(len(a1)) if a1[ix] == 1 and a2[ix] == 0]
+                np = [ix for ix in range(len(a1)) if a1[ix] == 0 and a2[ix] == 1]
+                matr = [[len(pp), len(pn)], [len(np),  len(nn)]]
+                corr_use = len(pp) <= 4 or len(pn) <= 4 or len(np) <= 4 or len(nn) <= 4
+                mnc = mcnemar(matr, exact=False, correction=True)
+                new_data_frame["model1"].append(m1)
+                new_data_frame["model2"].append(m2)
+                new_data_frame["class"].append(class_one)
+                new_data_frame["test_type"].append("correction")
+                new_data_frame["correction"].append(corr_use)
+                new_data_frame["pvalue"].append(mnc.pvalue)
+                new_data_frame["statistic"].append(mnc.statistic)
+                mn = mcnemar(matr, exact=False, correction=False)
+                new_data_frame["model1"].append(m1)
+                new_data_frame["model2"].append(m2)
+                new_data_frame["class"].append(class_one)
+                new_data_frame["test_type"].append("no")
+                new_data_frame["correction"].append(corr_use)
+                new_data_frame["pvalue"].append(mn.pvalue)
+                new_data_frame["statistic"].append(mn.statistic)
+                mnbc = mcnemar(matr, exact=True, correction=True)
+                new_data_frame["model1"].append(m1)
+                new_data_frame["model2"].append(m2)
+                new_data_frame["class"].append(class_one)
+                new_data_frame["test_type"].append("exactcorrection")
+                new_data_frame["correction"].append(corr_use)
+                new_data_frame["pvalue"].append(mnbc.pvalue)
+                new_data_frame["statistic"].append(mnbc.statistic)
+                mnb = mcnemar(matr, exact=True, correction=False)
+                new_data_frame["model1"].append(m1)
+                new_data_frame["model2"].append(m2)
+                new_data_frame["class"].append(class_one)
+                new_data_frame["test_type"].append("exact")
+                new_data_frame["correction"].append(corr_use)
+                new_data_frame["pvalue"].append(mnb.pvalue)
+                new_data_frame["statistic"].append(mnb.statistic)
+    dfnew = pd.DataFrame(new_data_frame)
+    dfnew.to_csv("mcnemar.csv", index = False)
+else:
+    dfnew = pd.read_csv("mcnemar.csv", index_col = False)
+ix_dfnew = []
+ix_dfnew_unfiltered = []
+dicti_model = {m: [] for m in model_name_list}
+dict_wd = {wd: [] for wd in wd_list}
+dict_class = {c: [] for c in range(0, 6)}
+pvcls = dict()
+allpv = dict()
+allpvno = dict()
+allpok = dict()
+allpsignificant = dict()
+for ix in range(len(dfnew["model1"])):
+    m1 = dfnew["model1"][ix]
+    m2 = dfnew["model2"][ix]
+    cls = dfnew["class"][ix]
+    t = dfnew["test_type"][ix]
+    c = dfnew["correction"][ix]
+    p = dfnew["pvalue"][ix]
+    s = dfnew["statistic"][ix]
+    if str(p) == "":
+        p = 1.0
+    if str(s) == "inf":
+        p = 1.0
+    if m1 not in allpv:
+        allpv[m1] = dict()
+    if m2 not in allpv[m1]:
+        allpv[m1][m2] = set()
+    allpv[m1][m2].add((cls, t, c, p))
+    if m2 not in allpv:
+        allpv[m2] = dict()
+    if m1 not in allpv[m2]:
+        allpv[m2][m1] = set()
+    allpv[m2][m1].add((cls, t, c, p))
+    if "all" in m1:
+        continue
+    if "all" in m2:
+        continue
+    if m1 not in allpvno:
+        allpvno[m1] = dict()
+    if m2 not in allpvno[m1]:
+        allpvno[m1][m2] = set()
+    allpvno[m1][m2].add((cls, t, c, p))
+    if m2 not in allpvno:
+        allpvno[m2] = dict()
+    if m1 not in allpvno[m2]:
+        allpvno[m2][m1] = set()
+    allpvno[m2][m1].add((cls, t, c, p))
+    if cls != 0:
+        continue
+    if "exact" in t:
+        continue
+    if "correction" in t and not c:
+        continue
+    if "correction" not in t and c:
+        continue
+    if m1 not in allpok:
+        allpok[m1] = dict()
+    if m2 not in allpok[m1]:
+        allpok[m1][m2] = set()
+    allpok[m1][m2].add((cls, t, c, p))
+    if m2 not in allpok:
+        allpok[m2] = dict()
+    if m1 not in allpok[m2]:
+        allpok[m2][m1] = set()
+    allpok[m2][m1].add((cls, t, c, p))
+    ix_dfnew_unfiltered.append(ix)
+    if p < 0.05 / (21 * 43):
+        continue
+    if m1 not in allpsignificant:
+        allpsignificant[m1] = dict()
+    if m2 not in allpsignificant[m1]:
+        allpsignificant[m1][m2] = set()
+    allpsignificant[m1][m2].add((cls, t, c, p))
+    if m2 not in allpsignificant:
+        allpsignificant[m2] = dict()
+    if m1 not in allpsignificant[m2]:
+        allpsignificant[m2][m1] = set()
+    allpsignificant[m2][m1].add((cls, t, c, p))
+    ix_dfnew.append(ix)
+    if m1 not in pvcls:
+        pvcls[m1] = dict()
+    if m2 not in pvcls[m1]:
+        pvcls[m1][m2] = []
+    pvcls[m1][m2].append((cls, t, c, p))
+    dict_class[cls].append(ix)
+    for m in model_name_list:
+        if m in m1 and m in m2:
+            dicti_model[m].append(ix)
+    for wd in wd_list:
+        if wd in m1 and wd in m2:
+            dict_wd[wd].append(ix)
+    s = dfnew["statistic"][ix]
+print(len(ix_dfnew))
+print(len(ix_dfnew_unfiltered))
+for m in model_name_list:
+    if m != "nb":
+        continue
+    pvs = set()
+    for ix in dicti_model[m]:
+        m1 = dfnew["model1"][ix]
+        m2 = dfnew["model2"][ix]
+        cls = dfnew["class"][ix]
+        #print(m1, m2, cls)
+        pvs.add((m1, m2))
+    for p in pvs:
+        print(p[0], p[1], pvcls[p[0]][p[1]])
+for wd in wd_list:
+    if wd != "no_Dst":
+        continue
+    pvs = set()
+    for ix in dict_wd[wd]:
+        m1 = dfnew["model1"][ix]
+        m2 = dfnew["model2"][ix]
+        cls = dfnew["class"][ix]
+        #print(m1, m2, cls)
+        pvs.add((m1, m2))
+    for p in pvs:
+        print(p[0], p[1], pvcls[p[0]][p[1]])
+
+draw_again = True
+
+for wd in wd_list:
+    if "all" in wd:
+        continue
+
+    df_new_unfiltered = {"best": []}
+    for t in set(dfnew["test_type"]):
+        df_new_unfiltered[t] = []
+
+    tick_labels = []
+    for m1 in allpvno:
+        if wd not in m1:
+            continue
+        tick_labels.append(m1.split("_")[0])
+        for t in set(df_new_unfiltered):
+            df_new_unfiltered[t].append([])
+        for m2 in allpvno:
+            if wd not in m2:
+                continue
+            if m1 != m2:
+                for val in allpvno[m1][m2]:
+                    cls, t, c, p = val
+                    if cls:
+                        continue
+                    if val in allpok[m1][m2]:
+                        df_new_unfiltered["best"][-1].append(p)
+                    df_new_unfiltered[t][-1].append(p)
+            else:
+                for t in df_new_unfiltered:
+                    df_new_unfiltered[t][-1].append(1.0)
+    
+    #for t in df_new_unfiltered:
+        #print(len(df_new_unfiltered[t]), len(df_new_unfiltered[t][0]))
+    if draw_again:
+        for t in df_new_unfiltered:
+            plt.rcParams["svg.fonttype"] = "none"
+            rc('font',**{'family':'Arial'})
+            #plt.rcParams.update({"font.size": 7})
+            SMALL_SIZE = 7
+            MEDIUM_SIZE = 7
+            BIGGER_SIZE = 7
+
+            plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+            plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+            plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+            plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+            plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+            plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+            plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+            plt.figure(figsize = (29.7 / 3 * cm, 21 / 3 * cm), dpi = 300)
+            sns.heatmap(df_new_unfiltered[t], annot = True, vmin = 0, vmax = 1, fmt = '.2g', cbar_kws={'label': '$p$-value'})
+            plt.title("Candidate model comparison using\n" + translate_data[wd])
+            plt.xlabel("Methods")
+            #plt.ylabel("Methods")
+            #plt.xticks(rotation=90)
+            plt.yticks(rotation=0)
+            #plt.xticks([i + 0.5 for i in range(len(tick_labels))], ["The " + translate_algo[l].replace(" in ", "\nin ") for l in tick_labels])
+            plt.xticks([])
+            plt.yticks([i + 0.5 for i in range(len(tick_labels))], ["The " + translate_algo[l].replace(" in ", "\nin ") for l in tick_labels])
+            #plt.show()
+            plt.savefig("pvalueplot_" + wd  + "_" + t + ".png", bbox_inches = "tight")
+            plt.savefig("pvalueplot_" + wd  + "_" + t + ".pdf", bbox_inches = "tight")
+            plt.savefig("pvalueplot_" + wd  + "_" + t + ".svg", bbox_inches = "tight")
+            plt.close()
+
+for m in model_name_list:
+    df_new_unfiltered = {"best": []}
+    for t in set(dfnew["test_type"]):
+        df_new_unfiltered[t] = []
+        
+    tick_labels = []
+    for m1 in allpvno:
+        if m not in m1:
+            continue
+        tick_labels.append(m1.replace(m1.split("_")[0] + "_", ""))
+        for t in set(df_new_unfiltered):
+            df_new_unfiltered[t].append([])
+        for m2 in allpvno:
+            if m not in m2:
+                continue
+            if m1 != m2:
+                for val in allpvno[m1][m2]:
+                    cls, t, c, p = val
+                    if cls:
+                        continue
+                    if val in allpok[m1][m2]:
+                        df_new_unfiltered["best"][-1].append(p)
+                    df_new_unfiltered[t][-1].append(p)
+            else:
+                for t in df_new_unfiltered:
+                    df_new_unfiltered[t][-1].append(1.0)
+    
+    #for t in df_new_unfiltered:
+        #print(len(df_new_unfiltered[t]), len(df_new_unfiltered[t][0]))
+    if draw_again:
+        for t in df_new_unfiltered:
+            plt.rcParams["svg.fonttype"] = "none"
+            rc('font',**{'family':'Arial'})
+            #plt.rcParams.update({"font.size": 7})
+            SMALL_SIZE = 7
+            MEDIUM_SIZE = 7
+            BIGGER_SIZE = 7
+
+            plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+            plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+            plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+            plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+            plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+            plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+            plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+            plt.figure(figsize = (29.7 / 3 * cm, 21 / 3 * cm), dpi = 300)
+            sns.heatmap(df_new_unfiltered[t], annot = True, vmin = 0, vmax = 1, fmt = '.2g', cbar_kws={'label': '$p$-value'})
+            plt.title("Candidate model comparison using the\n" + translate_algo[m])
+            plt.xlabel("Predictors")
+            #plt.ylabel("Predictors")
+            #plt.xticks(rotation=90)
+            plt.yticks(rotation=0)
+            #plt.xticks([i + 0.5 for i in range(len(tick_labels))], [translate_data[l].replace("(", "\n(").replace("geo", "Geo").replace("as", "\nas").replace("except ", "except\n").replace("$dTEC$, $B_{x}$, ", "$dTEC$, $B_{x}$,\n").replace("the", "The").replace("all", "All") for l in tick_labels])
+            plt.xticks([])
+            plt.yticks([i + 0.5 for i in range(len(tick_labels))], [translate_data[l].replace("(", "\n(").replace("geo", "Geo").replace("as", "\nas").replace("except ", "except\n").replace("$dTEC$, $B_{x}$, ", "$dTEC$, $B_{x}$,\n").replace("the", "The").replace("all", "All") for l in tick_labels])
+            #plt.show()
+            plt.savefig("pvalueplot_" + m + "_" + t + ".png", bbox_inches = "tight")
+            plt.savefig("pvalueplot_" + m + "_" + t + ".pdf", bbox_inches = "tight")
+            plt.savefig("pvalueplot_" + m + "_" + t + ".svg", bbox_inches = "tight")
+            plt.close()
+
+t = "best"
+
+wd = "no_TEC"
+
+df_new_unfiltered = {"best": []}
+for t in set(dfnew["test_type"]):
+    df_new_unfiltered[t] = []
+
+tick_labels = []
+for m1 in allpvno:
+    if wd not in m1:
+        continue
+    tick_labels.append(m1.split("_")[0])
+    for t in set(df_new_unfiltered):
+        df_new_unfiltered[t].append([])
+    for m2 in allpvno:
+        if wd not in m2:
+            continue
+        if m1 != m2:
+            for val in allpvno[m1][m2]:
+                cls, t, c, p = val
+                if cls:
+                    continue
+                if val in allpok[m1][m2]:
+                    df_new_unfiltered["best"][-1].append(p)
+                df_new_unfiltered[t][-1].append(p)
+        else:
+            for t in df_new_unfiltered:
+                df_new_unfiltered[t][-1].append(1.0)
+
+t = "best"
+plt.rcParams["svg.fonttype"] = "none"
+rc('font',**{'family':'Arial'})
+#plt.rcParams.update({"font.size": 7})
+SMALL_SIZE = 7
+MEDIUM_SIZE = 7
+BIGGER_SIZE = 7
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+plt.figure(figsize = (29.7 / 3.2 * cm, 21 / 1.1 * cm), dpi = 300)
+gs = gridspec.GridSpec(2, 1, height_ratios=[0.9, 1.1])
+ax0 = plt.subplot(gs[0])
+sns.heatmap(df_new_unfiltered[t], annot = True, vmin = 0, vmax = 1, fmt = '.2g', cbar = False)
+plt.title("Candidate model comparison using McNemar’s test, and\n" + translate_data[wd])
+#plt.xlabel("Methods")
+plt.ylabel("Methods")
+#plt.xticks(rotation=90)
+plt.yticks(rotation=0)
+#plt.xticks([i + 0.5 for i in range(len(tick_labels))], ["The " + translate_algo[l].replace(" in ", "\nin ") for l in tick_labels])
+plt.xticks([])
+plt.yticks([i + 0.5 for i in range(len(tick_labels))], ["The " + translate_algo[l].replace(" in ", "\nin ") for l in tick_labels])
+#plt.show()
+
+m = "nb"
+
+df_new_unfiltered = {"best": []}
+for t in set(dfnew["test_type"]):
+    df_new_unfiltered[t] = []
+    
+tick_labels = []
+for m1 in allpvno:
+    if m not in m1:
+        continue
+    tick_labels.append(m1.replace(m1.split("_")[0] + "_", ""))
+    for t in set(df_new_unfiltered):
+        df_new_unfiltered[t].append([])
+    for m2 in allpvno:
+        if m not in m2:
+            continue
+        if m1 != m2:
+            for val in allpvno[m1][m2]:
+                cls, t, c, p = val
+                if cls:
+                    continue
+                if val in allpok[m1][m2]:
+                    df_new_unfiltered["best"][-1].append(p)
+                df_new_unfiltered[t][-1].append(p)
+        else:
+            for t in df_new_unfiltered:
+                df_new_unfiltered[t][-1].append(1.0)
+
+t = "best"
+ax1 = plt.subplot(gs[1])
+sns.heatmap(df_new_unfiltered[t], annot = True, vmin = 0, vmax = 1, fmt = '.2g', cbar_kws={'label': '$p$-value', 'location': 'bottom'})
+plt.title("Candidate model comparison using McNemar’s test, and\nthe " + translate_algo[m])
+#plt.xlabel("Predictors")
+plt.ylabel("Predictors")
+#plt.xticks(rotation=90)
+plt.yticks(rotation=0)
+#plt.xticks([i + 0.5 for i in range(len(tick_labels))], [translate_data[l].replace("(", "\n(").replace("geo", "Geo").replace("as", "\nas").replace("except ", "except\n").replace("$dTEC$, $B_{x}$, ", "$dTEC$, $B_{x}$,\n").replace("the", "The").replace("all", "All") for l in tick_labels])
+plt.xticks([])
+plt.yticks([i + 0.5 for i in range(len(tick_labels))], [translate_data[l].replace("(", "\n(").replace("geo", "Geo").replace("as", "\nas").replace("except ", "except\n").replace("$dTEC$, $B_{x}$, ", "$dTEC$, $B_{x}$,\n").replace("the", "The").replace("all", "All") for l in tick_labels])
+#plt.show()
+plt.savefig("pvalueplot_total.png", bbox_inches = "tight")
+plt.savefig("pvalueplot_total.pdf", bbox_inches = "tight")
+plt.savefig("pvalueplot_total.svg", bbox_inches = "tight")
+plt.close()
+
+t = "best"
+
+wd = "no_TEC"
+
+df_new_unfiltered = {"best": []}
+for t in set(dfnew["test_type"]):
+    df_new_unfiltered[t] = []
+
+tick_labels = []
+for m1 in allpvno:
+    if wd not in m1:
+        continue
+    tick_labels.append(m1.split("_")[0])
+    for t in set(df_new_unfiltered):
+        df_new_unfiltered[t].append([])
+    for m2 in allpvno:
+        if wd not in m2:
+            continue
+        if m1 != m2:
+            for val in allpvno[m1][m2]:
+                cls, t, c, p = val
+                if cls:
+                    continue
+                if val in allpok[m1][m2]:
+                    df_new_unfiltered["best"][-1].append(p)
+                df_new_unfiltered[t][-1].append(p)
+        else:
+            for t in df_new_unfiltered:
+                df_new_unfiltered[t][-1].append(1.0)
+
+t = "best"
+plt.rcParams["svg.fonttype"] = "none"
+rc('font',**{'family':'Arial'})
+#plt.rcParams.update({"font.size": 7})
+SMALL_SIZE = 7
+MEDIUM_SIZE = 7
+BIGGER_SIZE = 7
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+plt.figure(figsize = (29.7 / 1.7 * cm, 21 / 3.4 * cm), dpi = 300)
+gs = gridspec.GridSpec(1, 2, width_ratios=[0.9, 1.1])
+ax0 = plt.subplot(gs[0])
+sns.heatmap(df_new_unfiltered[t], annot = True, vmin = 0, vmax = 1, fmt = '.2g', cbar = False)
+plt.title("Candidate model comparison using McNemar’s test, and\n" + translate_data[wd])
+plt.xlabel("Methods")
+#plt.ylabel("Methods")
+plt.xticks(rotation=90)
+plt.yticks(rotation=0)
+plt.xticks([i + 0.5 for i in range(len(tick_labels))], ["The " + translate_algo[l].replace(" in ", "\nin ") for l in tick_labels])
+plt.yticks([])
+#plt.yticks([i + 0.5 for i in range(len(tick_labels))], ["The " + translate_algo[l].replace(" in ", "\nin ") for l in tick_labels])
+#plt.show()
+
+m = "nb"
+
+df_new_unfiltered = {"best": []}
+for t in set(dfnew["test_type"]):
+    df_new_unfiltered[t] = []
+    
+tick_labels = []
+for m1 in allpvno:
+    if m not in m1:
+        continue
+    tick_labels.append(m1.replace(m1.split("_")[0] + "_", ""))
+    for t in set(df_new_unfiltered):
+        df_new_unfiltered[t].append([])
+    for m2 in allpvno:
+        if m not in m2:
+            continue
+        if m1 != m2:
+            for val in allpvno[m1][m2]:
+                cls, t, c, p = val
+                if cls:
+                    continue
+                if val in allpok[m1][m2]:
+                    df_new_unfiltered["best"][-1].append(p)
+                df_new_unfiltered[t][-1].append(p)
+        else:
+            for t in df_new_unfiltered:
+                df_new_unfiltered[t][-1].append(1.0)
+
+t = "best"
+ax1 = plt.subplot(gs[1])
+sns.heatmap(df_new_unfiltered[t], annot = True, vmin = 0, vmax = 1, fmt = '.2g', cbar_kws={'label': '$p$-value'})
+plt.title("Candidate model comparison using McNemar’s test, and\nthe " + translate_algo[m])
+plt.xlabel("Predictors")
+#plt.ylabel("Predictors")
+plt.xticks(rotation=90)
+plt.yticks(rotation=0)
+plt.xticks([i + 0.5 for i in range(len(tick_labels))], [translate_data[l].replace("(", "\n(").replace("geo", "Geo").replace("as", "\nas").replace("except ", "except\n").replace("$dTEC$, $B_{x}$, ", "$dTEC$, $B_{x}$,\n").replace("the", "The").replace("all", "All") for l in tick_labels])
+plt.yticks([])
+#plt.yticks([i + 0.5 for i in range(len(tick_labels))], [translate_data[l].replace("(", "\n(").replace("geo", "Geo").replace("as", "\nas").replace("except ", "except\n").replace("$dTEC$, $B_{x}$, ", "$dTEC$, $B_{x}$,\n").replace("the", "The").replace("all", "All") for l in tick_labels])
+#plt.show()
+plt.savefig("pvalueplot_total_horizontal.png", bbox_inches = "tight")
+plt.savefig("pvalueplot_total_horizontal.pdf", bbox_inches = "tight")
+plt.savefig("pvalueplot_total_horizontal.svg", bbox_inches = "tight")
+plt.close()

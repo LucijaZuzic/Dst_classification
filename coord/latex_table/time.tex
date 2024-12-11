@@ -1,0 +1,16 @@
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Model & elapsed_train & elapsed_predict & elapsed_importance & elapsed_total \\ \hline
+		svmPoly & $563.98$ & $0.52$ & NA & $565.11$ \\ \hline
+		C5.0 & $349.05$ & $0.07$ & $0$ & $350.02$ \\ \hline
+		nb & $145.02$ & $0.33$ & NA & $145.93$ \\ \hline
+		nnet & $590.30$ & $0.03$ & NA & $590.97$ \\ \hline
+		pls & $35.06$ & $0.35$ & $0.01$ & $36.47$ \\ \hline
+		fda & $140.47$ & $0.03$ & $0.02$ & $141.52$ \\ \hline
+		pcaNNet & $449.17$ & $0.02$ & NA & $449.86$ \\ \hline
+	\end{tabular}
+	\caption{The time taken for all algorithm stages in seconds for each model when using only $B_{x}$, $B_{y}$, and $B_{z}$ as input.}
+	\label{tab:time:coord}
+\end{table}

@@ -1,0 +1,76 @@
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		Model & svmPoly & C5.0 & nb & nnet & pls & fda & pcaNNet \\ \hline
+		elapsed & $151.78$ & $192.78$ & $215.56$ & $593.72$ & $53.25$ & $56.25$ & $351.31$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using all variables as input.}
+	\label{tab:time:reverse:all:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		Model & svmPoly & C5.0 & nb & nnet & pls & fda & pcaNNet \\ \hline
+		elapsed & $336.47$ & $680.39$ & $204.88$ & $629.87$ & $60.07$ & $91.61$ & $419.63$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using all variables except Dst as input.}
+	\label{tab:time:reverse:noDst:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		Model & svmPoly & C5.0 & nb & nnet & pls & fda & pcaNNet \\ \hline
+		elapsed & $390.44$ & $469.97$ & $168.38$ & $617.28$ & $51.43$ & $134.62$ & $460.03$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using all variables except Dst, TEC, and dTEC as input.}
+	\label{tab:time:reverse:noTEC:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		Model & svmPoly & C5.0 & nb & nnet & pls & fda & pcaNNet \\ \hline
+		elapsed & $563.98$ & $349.05$ & $145.02$ & $590.30$ & $35.06$ & $140.47$ & $449.17$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using only $B_{x}$, $B_{y}$, and $B_{z}$ as input.}
+	\label{tab:time:reverse:coord:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		Model & svmPoly & C5.0 & nb & nnet & pls & fda & pcaNNet \\ \hline
+		elapsed & $726.38$ & $359.69$ & $148.08$ & $616.16$ & $50.00$ & $158.58$ & $474.79$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using only $B_{x}$, $B_{y}$, and $a_{p}$ as input.}
+	\label{tab:time:reverse:xyap:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		Model & svmPoly & C5.0 & nb & nnet & pls & fda & pcaNNet \\ \hline
+		elapsed & $648.20$ & $332.81$ & $150.07$ & $631.77$ & $40.00$ & $166.54$ & $491.09$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using only $B_{x}$, $B_{z}$, and $a_{p}$ as input.}
+	\label{tab:time:reverse:xzap:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		Model & svmPoly & C5.0 & nb & nnet & pls & fda & pcaNNet \\ \hline
+		elapsed & $855.42$ & $387.42$ & $154.25$ & $650.34$ & $58.16$ & $186.60$ & $524.11$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using only $B_{y}$, $B_{z}$, and $a_{p}$ as input.}
+	\label{tab:time:reverse:yzap:train}
+\end{table}

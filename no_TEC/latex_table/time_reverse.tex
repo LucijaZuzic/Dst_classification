@@ -1,0 +1,13 @@
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		Model & svmPoly & C5.0 & nb & nnet & pls & fda & pcaNNet \\ \hline
+		elapsed_train & $390.44$ & $469.97$ & $168.38$ & $617.28$ & $51.43$ & $134.62$ & $460.03$ \\ \hline
+		elapsed_predict & $0.44$ & $0.06$ & $1.25$ & $0.03$ & $0.33$ & $0.03$ & $0.03$ \\ \hline
+		elapsed_importance & NA & $0.02$ & NA & NA & $0.01$ & $0.03$ & NA \\ \hline
+		elapsed_total & $391.42$ & $470.88$ & $170.22$ & $617.97$ & $52.75$ & $135.62$ & $460.76$ \\ \hline
+	\end{tabular}
+	\caption{The time taken for all algorithm stages in seconds for each model when using all variables except Dst, TEC, and dTEC as input.}
+	\label{tab:time:reverse:noTEC}
+\end{table}

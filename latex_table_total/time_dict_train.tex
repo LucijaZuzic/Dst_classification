@@ -1,0 +1,118 @@
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Model & elapsed \\ \hline
+		svmPoly & $151.78$ \\ \hline
+		C5.0 & $192.78$ \\ \hline
+		nb & $215.56$ \\ \hline
+		nnet & $593.72$ \\ \hline
+		pls & $53.25$ \\ \hline
+		fda & $56.25$ \\ \hline
+		pcaNNet & $351.31$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using all variables as input.}
+	\label{tab:time:all:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Model & elapsed \\ \hline
+		svmPoly & $336.47$ \\ \hline
+		C5.0 & $680.39$ \\ \hline
+		nb & $204.88$ \\ \hline
+		nnet & $629.87$ \\ \hline
+		pls & $60.07$ \\ \hline
+		fda & $91.61$ \\ \hline
+		pcaNNet & $419.63$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using all variables except Dst as input.}
+	\label{tab:time:noDst:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Model & elapsed \\ \hline
+		svmPoly & $390.44$ \\ \hline
+		C5.0 & $469.97$ \\ \hline
+		nb & $168.38$ \\ \hline
+		nnet & $617.28$ \\ \hline
+		pls & $51.43$ \\ \hline
+		fda & $134.62$ \\ \hline
+		pcaNNet & $460.03$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using all variables except Dst, TEC, and dTEC as input.}
+	\label{tab:time:noTEC:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Model & elapsed \\ \hline
+		svmPoly & $563.98$ \\ \hline
+		C5.0 & $349.05$ \\ \hline
+		nb & $145.02$ \\ \hline
+		nnet & $590.30$ \\ \hline
+		pls & $35.06$ \\ \hline
+		fda & $140.47$ \\ \hline
+		pcaNNet & $449.17$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using only $B_{x}$, $B_{y}$, and $B_{z}$ as input.}
+	\label{tab:time:coord:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Model & elapsed \\ \hline
+		svmPoly & $726.38$ \\ \hline
+		C5.0 & $359.69$ \\ \hline
+		nb & $148.08$ \\ \hline
+		nnet & $616.16$ \\ \hline
+		pls & $50.00$ \\ \hline
+		fda & $158.58$ \\ \hline
+		pcaNNet & $474.79$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using only $B_{x}$, $B_{y}$, and $a_{p}$ as input.}
+	\label{tab:time:xyap:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Model & elapsed \\ \hline
+		svmPoly & $648.20$ \\ \hline
+		C5.0 & $332.81$ \\ \hline
+		nb & $150.07$ \\ \hline
+		nnet & $631.77$ \\ \hline
+		pls & $40.00$ \\ \hline
+		fda & $166.54$ \\ \hline
+		pcaNNet & $491.09$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using only $B_{x}$, $B_{z}$, and $a_{p}$ as input.}
+	\label{tab:time:xzap:train}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Model & elapsed \\ \hline
+		svmPoly & $855.42$ \\ \hline
+		C5.0 & $387.42$ \\ \hline
+		nb & $154.25$ \\ \hline
+		nnet & $650.34$ \\ \hline
+		pls & $58.16$ \\ \hline
+		fda & $186.60$ \\ \hline
+		pcaNNet & $524.11$ \\ \hline
+	\end{tabular}
+	\caption{The train time in seconds for each model when using only $B_{y}$, $B_{z}$, and $a_{p}$ as input.}
+	\label{tab:time:yzap:train}
+\end{table}
