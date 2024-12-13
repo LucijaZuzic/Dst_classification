@@ -4,14 +4,14 @@ Ambient conditions classification enables systematic mitigation of adversarial e
 
 The experiment was run on $Windows$ 11 using $R Studio$ version 2024.04.2+764 and $R$ version 4.4.1, the AMD Radeon RX 6600 Graphics Processing Unit (GPU), $16$ GB of Random Access Memory (RAM), and the AMD Ryzen 5 PRO 4650G Central Processing Unit (CPU) with $6$ cores. 
 
-The annual observed $TEC$ data at Darwin, NT is contained in the file $darwin2014.csv$. The $TEC$ data set was derived from RINEX GPS observations using GPS TEC software by Seemala.
+The annual observed $TEC$ data at Darwin, NT is contained in the file $darwin2014.csv$. The $TEC$ data set was derived from RINEX GPS observations using GPS $TEC$ software by Seemala.
 
-The annual estimated $Ds$t and $a_{p}$ data in $2014$ is contained in the file $Dstap2014.dat$. The $Ds$t and $a_{p}$ data was derived from the INTERMAGNET data set, available from the INTERMAGNET web-site, and reformatted.
+The annual estimated $Dst$ and $a_{p}$ data in $2014$ is contained in the file $Dstap2014.dat$. The $Dst$ and $a_{p}$ data were derived from the INTERMAGNET data set, available from the INTERMAGNET website, and reformatted.
 
-Model training can be run using the $ldtr2024_train.R$ script that automatically sets the working directory to the location of the script on disk.
+Model training can be run using the $ldtr2024\\_train.R$ script that automatically sets the working directory to the script's location on disk.
 
-The script $ldtr2024_vars_analyze.R$ was used for statistical analysis of input variable correlation and normal distribution.
+The script $ldtr2024\\_vars\\_analyze.R$ was used for the statistical analysis of input variable correlation and normal distribution.
 
-The Python script $stat_test.py$ is used to run McNemar's test on the results.
+The Python script $stat\\_test.py$ is used to run McNemar's test on the results.
 
-The Python script $read_stat_test_and_distr.py$ and $read_txt_as_csv.py$ reformat the results for readability in $.txt$, $.csv$, and $.tex$ format.
+The Python script $read\\_stat\\_test\\_and\\_distr.py$ and $read\\_txt\\_as\\_csv.py$ reformat the results for readability in $.txt$, $.csv$, and $.tex$ format.
