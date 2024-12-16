@@ -4,7 +4,7 @@ Ambient conditions classification enables systematic mitigation of adversarial e
 
 The annual observed $TEC$ data at Darwin, NT is contained in the file $darwin2014.csv$. The $TEC$ data set was derived from RINEX GPS observations using GPS $TEC$ software by Seemala.
 
-The annual estimated $Dst$ and $a_{p}$ data in $2014$ is contained in the file $Dstap2014.dat$. The $Dst$ and $a_{p}$ data were derived from the INTERMAGNET data set, available from the INTERMAGNET website, and reformatted.
+The annual estimated $Dst$ and $a_{p}$ data in 2014 is contained in the file $Dstap2014.dat$. The $Dst$ and $a_{p}$ data were derived from the INTERMAGNET data set, available from the INTERMAGNET website, and reformatted.
 
 Model training can be run using the $ldtr2024\\_train.R$ script that automatically sets the working directory to the script's location on disk.
 
@@ -12,16 +12,16 @@ The script $ldtr2024\\_vars\\_analyze.R$ was used for the statistical analysis o
 
 The Python script $stat\\_test.py$ is used to run McNemar's test on the results.
 
-The Python script $read\\_stat\\_test\\_and\\_distr.py$ and $read\\_txt\\_as\\_csv.py$ reformat the results for readability in $.txt$, $.csv$, and $.tex$ format, available in the directory $latex_table_total$.
+The Python script $read\\_stat\\_test\\_and\\_distr.py$ and $read\\_txt\\_as\\_csv.py$ reformat the results for readability in $.txt$, $.csv$, and $.tex$ format, available in the directory $latex\\_table\\_total$.
 
-Research results are presented with the following initial set of six predictors (results in the directory entitled $no_Dst$): Total Electron Content ($TEC$), dTEC (standard deviation of Total Electron Content), $B_{x}$, $B_{y}$, $B_{z}$, and $a_{p}$. Disturbance Storm-Time ($Dst$) should not be used as a predictor since the initial classification is derived from $Dst$ values, but results are for evaluation to demonstrate the validity of this conclusion in the directory entitled $all$. Candidate models have also been developed using: (1.): all predictors except $TEC$, and $dTEC$ ($B_{x}$, $B_{y}$, $B_{z}$, and $a_{p}$, results in the directory entitled $no_TEC$), (2.): Geomagnetic indices ($B_{x}$, $B_{y}$, and $B_{z}$, results in the directory entitled $coord$), (3.): $B_{x}$, $B_{y}$, and $a_{p}$ (results in the directory entitled $xyap$), (4.): $B_{x}$, $B_{z}$, and $a_{p}$ (results in the directory entitled $xzap$), and (5.): $B_{y}$, $B_{z}$, and $a_{p}$ (results in the directory entitled $yzap$).
+Research results are presented with the following initial set of six predictors (results in the directory entitled $no\\_ Dst$): Total Electron Content ($TEC$), dTEC (standard deviation of Total Electron Content), $B_{x}$, $B_{y}$, $B_{z}$, and $a_{p}$. Disturbance Storm-Time ($Dst$) should not be a predictor since the initial classification is derived from $Dst$ values. Still, results are evaluated to demonstrate the validity of this conclusion, as presented in the directory entitled $all$. Candidate models have also been developed using: (1.): all predictors except $TEC$, and $dTEC$ ($B_{x}$, $B_{y}$, $B_{z}$, and $a_{p}$, results in the directory entitled $no\\_ TEC$), (2.): Geomagnetic indices ($B_{x}$, $B_{y}$, and $B_{z}$, results in the directory entitled $coord$), (3.): $B_{x}$, $B_{y}$, and $a_{p}$ (results in the directory entitled $xyap$), (4.): $B_{x}$, $B_{z}$, and $a_{p}$ (results in the directory entitled $xzap$), and (5.): $B_{y}$, $B_{z}$, and $a_{p}$ (results in the directory entitled $yzap$).
 
 Contact: lucija.zuzic@uniri.hr, +385989856334
 
 Hardware requirements: No minimal requirements are set, but the experiment was run on $Windows$ 11 using $R Studio$ version 2024.04.2+764 and $R$ version 4.4.1, the AMD Radeon RX 6600 Graphics Processing Unit (GPU), $16$ GB of Random Access Memory (RAM), and the AMD Ryzen 5 PRO 4650G Central Processing Unit (CPU) with $6$ cores. A stronger configuration will speed up model training.
 
-Program language: R and Python
+Program language: $R$ and Python
  
-Software required: The utilized Python and R libraries can be installed from a $cran$ repository using $R Studio$ and using a package manager for Python, such as $conda$.
+Software required: The utilized $R$ and Python libraries can be installed from a $cran$ repository using $R Studio$ and using a package manager for Python, such as $conda$.
 
-Program size: The $.zip$ downloaded from GitHub requires approximately $10$ $MB$ of storage space and extracted files amount to a maximum of $41$ $MB$.
+Program size: The $.zip$ downloaded from GitHub requires approximately $10$ $MB$ of storage space. Extracted files amount to a maximum of $41$ $MB$.
