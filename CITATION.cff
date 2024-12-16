@@ -14,7 +14,7 @@ authors:
   given-names: "Renato"
   orcid: "https://orcid.org/0000-0002-7040-9931"
 title: "A Dst-based space weather conditions machine learning classification model for GNSS PNT performance analysis"
-version: 1.0.2
-doi: 10.5281/zenodo.14397667
-date-released: 2024-12-11
+version: v1
+doi: 10.5281/zenodo.14502657
+date-released: 2024-12-16
 url: "https://github.com/LucijaZuzic/Dst_classification"
